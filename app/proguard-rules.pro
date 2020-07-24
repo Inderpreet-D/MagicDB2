@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# For object serializing with firebase
+-keepattributes Signature
+-keepclassmembers class com.dragynslayr.magicdb2.data.* {
+  *;
+}
