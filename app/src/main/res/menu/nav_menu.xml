@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/username_group">
+        <item
+            android:icon="@android:drawable/ic_menu_compass"
+            android:title="" />
+    </group>
+    <group android:id="@+id/nav_group">
+        <item
+            android:id="@+id/nav_item_scan"
+            android:title="@string/nav_scan" />
+        <item
+            android:id="@+id/nav_item_search"
+            android:title="@string/nav_search" />
+        <item
+            android:id="@+id/nav_item_view"
+            android:title="@string/nav_view" />
+    </group>
+    <group android:id="@+id/logout_group">
+        <item
+            android:id="@+id/nav_item_logout"
+            android:title="@string/nav_logout" />
+    </group>
+</menu>

@@ -3,6 +3,7 @@ package com.dragynslayr.magicdb2.helper
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
@@ -17,6 +18,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.dragynslayr.magicdb2.R
+import com.dragynslayr.magicdb2.activity.LoginActivity
+import com.dragynslayr.magicdb2.activity.MainActivity
+import com.dragynslayr.magicdb2.data.User
 import com.google.android.material.textfield.TextInputLayout
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
@@ -87,7 +92,6 @@ fun TextInputLayout.moveCursorToEnd() {
     this.editText!!.setSelection(this.getText().length)
 }
 
-/*
 fun AppCompatActivity.startMain(user: User) {
     val intent =
         Intent(applicationContext, MainActivity::class.java).apply {
@@ -116,7 +120,6 @@ fun AppCompatActivity.startLogin() {
     startActivity(intent)
     finish()
 }
-*/
 
 private fun makeToast(context: Context, text: String, duration: Int) {
     Toast.makeText(context, text, duration).show()
