@@ -4,17 +4,10 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.OpenableColumns
 import android.text.InputFilter
 import android.util.Log
-import android.util.Patterns
-import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -24,7 +17,6 @@ import com.dragynslayr.magicdb2.activity.MainActivity
 import com.dragynslayr.magicdb2.data.User
 import com.google.android.material.textfield.TextInputLayout
 import java.security.MessageDigest
-import java.util.concurrent.TimeUnit
 
 fun EditText.setNameFilter() {
     val filter =
@@ -56,40 +48,6 @@ fun TextInputLayout.resetError() {
 
 fun TextInputLayout.getText(): String {
     return this.editText!!.text.toString()
-}
-
-fun TextInputLayout.setText(msg: String) {
-    this.editText!!.setText(msg, TextView.BufferType.EDITABLE)
-}
-
-fun TextInputLayout.resetText() {
-    this.setText("")
-}
-
-fun LinearLayout.hide() {
-    this.visibility = View.GONE
-}
-
-fun LinearLayout.show() {
-    this.visibility = View.VISIBLE
-}
-
-fun TextInputLayout.isValidEmail(): Boolean {
-    return this.getText().isValidEmail()
-}
-
-fun String.isValidEmail(): Boolean {
-    return Patterns.EMAIL_ADDRESS.matcher(this).matches()
-}
-
-fun TextInputLayout.focus(context: Context) {
-    this.editText!!.requestFocus()
-    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.showSoftInput(this.editText!!, InputMethodManager.SHOW_IMPLICIT)
-}
-
-fun TextInputLayout.moveCursorToEnd() {
-    this.editText!!.setSelection(this.getText().length)
 }
 
 fun AppCompatActivity.startMain(user: User) {
@@ -155,37 +113,11 @@ fun AlertDialog.spaceButtons() {
     }
 }
 
-fun Int.formatTime(): String {
-    val secondsLong = this.toLong()
-    val hours = TimeUnit.SECONDS.toHours(secondsLong)
-    val minutes = TimeUnit.SECONDS.toMinutes(secondsLong) - TimeUnit.HOURS.toMinutes(hours)
-    val seconds =
-        TimeUnit.SECONDS.toSeconds(secondsLong) - TimeUnit.MINUTES.toSeconds(minutes) - TimeUnit.HOURS.toSeconds(
-            hours
-        )
-    return "${hours.asTime()}:${minutes.asTime()}:${seconds.asTime()}"
-}
-
-private fun Long.asTime(): String {
-    return if (this < 10) {
-        "0$this"
-    } else {
-        "$this"
+fun String.removeChars(): String {
+    var s = this
+    val toRemove = arrayOf('(', ')', ':', '|', '\n', '\r', '\t')
+    toRemove.forEach { c ->
+        s = s.replace(c.toString(), "")
     }
-}
-
-fun Uri.getFilename(context: Context): String {
-    var result = ""
-    if (this.scheme == "content" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val cursor = context.contentResolver.query(this, null, null, null)
-        cursor.use {
-            if (it != null && it.moveToFirst()) {
-                result = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-            }
-        }
-    }
-    if (result == "") {
-        result = this.path!!.split("/").last()
-    }
-    return result
+    return s
 }
