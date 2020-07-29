@@ -7,8 +7,10 @@ import android.os.Bundle
 import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dragynslayr.magicdb2.R
 import com.dragynslayr.magicdb2.data.Card
+import com.dragynslayr.magicdb2.data.CardListAdapter
 import com.dragynslayr.magicdb2.helper.log
 import com.dragynslayr.magicdb2.view.Overlay
 import com.google.android.gms.vision.CameraSource
@@ -16,13 +18,15 @@ import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.text.TextBlock
 import com.google.android.gms.vision.text.TextRecognizer
 import kotlinx.android.synthetic.main.fragment_scan.view.*
+import org.json.JSONObject
 
 class ScanFragment : Fragment() {
 
     private lateinit var cameraSource: CameraSource
-    private lateinit var searchThread: Thread
     private lateinit var overlay: Overlay
     private lateinit var surface: SurfaceView
+    private lateinit var cards: ArrayList<Card>
+    private lateinit var v: View
 
     private var scanning = false
     private var scanned = ""
@@ -33,15 +37,63 @@ class ScanFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val v = inflater.inflate(R.layout.fragment_scan, container, false)
-        overlay = v.overlayView
-        surface = v.surfaceView
+        v = inflater.inflate(R.layout.fragment_scan, container, false)
+        overlay = v.overlay_view
+        surface = v.surface_view
+
+        cards = arrayListOf()
+        with(v) {
+            card_recycler.layoutManager = LinearLayoutManager(requireContext())
+            card_recycler.adapter = CardListAdapter(cards)
+            card_recycler.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+                if (bottom < oldBottom) {
+                    card_recycler.postDelayed({
+                        card_recycler.scrollToPosition(0)
+                    }, 100)
+                }
+            }
+            hideResult()
+
+            back_button.setOnClickListener {
+                hideResult()
+                delayScan()
+            }
+
+            add_button.setOnClickListener {
+                "Pushed add".log()
+                cards.forEach {
+                    if (it.amount!! > 0) {
+                        "${it.name} -> ${it.amount}".log()
+                        // TODO: Upload these changes
+                    }
+                }
+                hideResult()
+                delayScan()
+            }
+        }
 
         delayScan()
-        createSearchThread()
         startCameraSource()
 
         return v
+    }
+
+    private fun hideResult() {
+        requireActivity().runOnUiThread {
+            with(v) {
+                scan_result.visibility = View.GONE
+                overlay_view.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun showResult() {
+        requireActivity().runOnUiThread {
+            with(v) {
+                scan_result.visibility = View.VISIBLE
+                overlay_view.visibility = View.GONE
+            }
+        }
     }
 
     private fun delayScan() {
@@ -53,17 +105,38 @@ class ScanFragment : Fragment() {
         }.start()
     }
 
-    private fun createSearchThread() {
-        searchThread = Thread {
+    private fun startSearch() {
+        Thread {
             scanning = false
             if (scanned == lastScanned) {
                 lastScanned = ""
                 delayScan()
             } else {
                 lastScanned = scanned
-                delayScan()
+                val json = Card.searchText(scanned)
+                "$lastScanned ==> Read: $json".log()
+                if (json.has("data")) {
+                    cards.clear()
+                    val length = json.getInt("total_cards")
+                    "Found $length card${if (length != 1) "s" else ""}".log()
+                    val data = json.getJSONArray("data")
+                    for (i in 0 until length) {
+                        if (!data.isNull(i)) {
+                            val card = data[i] as JSONObject
+                            "$i -> $card".log()
+                            val id = card.getString("id")
+                            val name = card.getString("name")
+                            cards.add(Card(id, name))
+                        }
+                    }
+                    v.card_recycler.adapter!!.notifyDataSetChanged()
+                    showResult()
+                } else {
+                    "No data for $lastScanned".log()
+                    delayScan()
+                }
             }
-        }
+        }.start()
     }
 
     private fun startCameraSource() {
@@ -117,7 +190,7 @@ class ScanFragment : Fragment() {
                         scanned = Card.clean(scanned)
                         if (Card.isValid(scanned)) {
                             overlay.update(scanned)
-                            searchThread.start()
+                            startSearch()
                         } else {
                             overlay.reset()
                         }
