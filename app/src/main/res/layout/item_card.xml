@@ -42,10 +42,9 @@
 
         <EditText
             android:id="@+id/amount_input"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="3dp"
-            android:layout_marginTop="2sp"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="3dp"
             android:background="@color/light_gray"
             android:hint="@string/amount_hint"
             android:importantForAutofill="no"
@@ -54,35 +53,39 @@
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="50sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/inc_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="5dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            app:icon="@drawable/icon_inc"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:layout_constraintBottom_toTopOf="@id/dec_button"
+            app:layout_constraintLeft_toRightOf="@id/amount_input"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/dec_button"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginHorizontal="3dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="5dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
             app:icon="@drawable/icon_dec"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/inc_button"
-            app:layout_constraintTop_toBottomOf="@id/amount_input" />
-
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/inc_button"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="3dp"
-            app:icon="@drawable/icon_inc"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:layout_constraintLeft_toRightOf="@id/dec_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/amount_input"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/amount_input" />
+            app:layout_constraintTop_toBottomOf="@id/inc_button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
