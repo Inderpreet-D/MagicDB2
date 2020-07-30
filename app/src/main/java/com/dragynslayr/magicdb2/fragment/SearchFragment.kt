@@ -48,7 +48,7 @@ class SearchFragment : Fragment() {
                 startSearch()
             }
             search_layout.editText!!.setOnEditorActionListener { _, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
                     startSearch()
                 }
                 return@setOnEditorActionListener false
