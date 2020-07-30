@@ -12,7 +12,6 @@ import com.dragynslayr.magicdb2.R
 import com.dragynslayr.magicdb2.data.Card
 import com.dragynslayr.magicdb2.data.CardListAdapter
 import com.dragynslayr.magicdb2.data.User
-import com.dragynslayr.magicdb2.helper.log
 import com.dragynslayr.magicdb2.view.Overlay
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
@@ -22,7 +21,6 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_scan.view.*
-import org.json.JSONObject
 
 class ScanFragment : Fragment() {
 
@@ -81,7 +79,6 @@ class ScanFragment : Fragment() {
             add_button.setOnClickListener {
                 cards.forEach {
                     if (it.amount!! > 0) {
-                        "${it.name} -> ${it.amount}".log()
                         it.addToCollection(user, db)
                     }
                 }
@@ -126,28 +123,19 @@ class ScanFragment : Fragment() {
                 delayScan()
             } else {
                 lastScanned = scanned
-                val json = Card.searchText(scanned)
-                "$lastScanned ==> Read: $json".log()
-                if (json.has("data") && v.scan_result.visibility == View.GONE) {
-                    cards.clear()
-                    val length = json.getInt("total_cards")
-                    "Found $length card${if (length != 1) "s" else ""}".log()
-                    val data = json.getJSONArray("data")
-                    for (i in 0 until length) {
-                        if (!data.isNull(i)) {
-                            val card = data[i] as JSONObject
-                            "$i -> $card".log()
-                            val id = card.getString("id")
-                            val name = card.getString("name")
-                            cards.add(Card(id, name))
+                if (v.scan_result.visibility == View.GONE) {
+                    val cardsList = Card.getCards(scanned)
+                    if (cardsList.isNotEmpty()) {
+                        cards.clear()
+                        cards.addAll(cardsList)
+                        requireActivity().runOnUiThread {
+                            v.card_recycler.adapter!!.notifyDataSetChanged()
                         }
+                        showResult()
+                    } else {
+                        delayScan()
                     }
-                    requireActivity().runOnUiThread {
-                        v.card_recycler.adapter!!.notifyDataSetChanged()
-                    }
-                    showResult()
                 } else {
-                    "No data for $lastScanned".log()
                     delayScan()
                 }
             }
@@ -157,9 +145,7 @@ class ScanFragment : Fragment() {
     private fun startCameraSource() {
         val recognizer = TextRecognizer.Builder(context).build()
 
-        if (!recognizer.isOperational) {
-            "Detector dependencies not loaded".log()
-        } else {
+        if (recognizer.isOperational) {
             cameraSource =
                 CameraSource.Builder(context, recognizer).setFacing(CameraSource.CAMERA_FACING_BACK)
                     .setRequestedPreviewSize(1920, 1080).setAutoFocusEnabled(true)

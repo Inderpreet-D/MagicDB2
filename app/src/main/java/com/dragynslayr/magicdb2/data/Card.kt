@@ -58,7 +58,7 @@ data class Card(
         }
 
         @Exclude
-        fun searchText(scanned: String): JSONObject {
+        private fun searchText(scanned: String): JSONObject {
             val escaped = URLEncoder.encode(scanned, "utf-8")
             val url = "https://api.scryfall.com/cards/search?q=${escaped}"
             return try {
@@ -66,6 +66,28 @@ data class Card(
             } catch (fnf: FileNotFoundException) {
                 JSONObject()
             }
+        }
+
+        @Exclude
+        fun getCards(scanned: String): List<Card> {
+            val cards = arrayListOf<Card>()
+
+            val json = searchText(scanned)
+            if (json.has("data")) {
+                val length = json.getInt("total_cards")
+                val data = json.getJSONArray("data")
+
+                for (i in 0 until length) {
+                    if (!data.isNull(i)) {
+                        val card = data[i] as JSONObject
+                        val id = card.getString("id")
+                        val name = card.getString("name")
+                        cards.add(Card(id, name))
+                    }
+                }
+            }
+
+            return cards
         }
     }
 }
