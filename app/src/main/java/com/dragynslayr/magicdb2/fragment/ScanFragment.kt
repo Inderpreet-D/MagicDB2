@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.dragynslayr.magicdb2.R
 import com.dragynslayr.magicdb2.data.Card
 import com.dragynslayr.magicdb2.data.CardListAdapter
+import com.dragynslayr.magicdb2.data.User
 import com.dragynslayr.magicdb2.helper.log
 import com.dragynslayr.magicdb2.view.Overlay
 import com.google.android.gms.vision.CameraSource
@@ -75,6 +76,8 @@ class ScanFragment : Fragment() {
         delayScan()
         startCameraSource()
 
+        "User is ${activity?.intent?.extras?.getSerializable(getString(R.string.user_object_key)) as User}".log()
+
         return v
     }
 
@@ -129,7 +132,9 @@ class ScanFragment : Fragment() {
                             cards.add(Card(id, name))
                         }
                     }
-                    v.card_recycler.adapter!!.notifyDataSetChanged()
+                    requireActivity().runOnUiThread {
+                        v.card_recycler.adapter!!.notifyDataSetChanged()
+                    }
                     showResult()
                 } else {
                     "No data for $lastScanned".log()
@@ -171,8 +176,7 @@ class ScanFragment : Fragment() {
                     ) {
                         cameraSource.start(surface.holder)
                     } else {
-                        ActivityCompat.requestPermissions(
-                            requireActivity(),
+                        requestPermissions(
                             arrayOf(Manifest.permission.CAMERA),
                             CAM_PERM_ID
                         )
