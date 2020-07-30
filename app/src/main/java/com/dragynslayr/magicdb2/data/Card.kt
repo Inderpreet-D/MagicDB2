@@ -35,14 +35,9 @@ data class Card(
                         val card = snapshot.getValue<Card>()!!
                         amount = amount?.plus(card.amount!!)
                     }
-                    update(user, db)
+                    db.child(DB_COLLECTION).child(user.username!!).child(id!!).setValue(this@Card)
                 }
             })
-    }
-
-    @Exclude
-    fun update(user: User, db: DatabaseReference) {
-        db.child(DB_COLLECTION).child(user.username!!).child(id!!).setValue(this)
     }
 
     @IgnoreExtraProperties
@@ -93,7 +88,8 @@ data class Card(
 }
 
 class CardListAdapter(
-    private val cards: List<Card>
+    private val cards: List<Card>,
+    private val showControls: Boolean? = true
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val li = LayoutInflater.from(parent.context)
@@ -107,42 +103,48 @@ class CardListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val card = cards[position]
-        (holder as CardHolder).bind(card)
+        (holder as CardHolder).bind(card, showControls!!)
     }
 }
 
 private class CardHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    fun bind(card: Card) {
+    fun bind(card: Card, showControls: Boolean) {
         with(itemView) {
             name_text.text = card.name!!
             id_text.text = card.id!!
             amount_input.setText(card.amount!!.toString(), TextView.BufferType.NORMAL)
 
-            dec_button.setOnClickListener {
-                var amount = amount_input.text.toString().toInt() - 1
-                if (amount < 0) {
-                    amount = 0
+            if (!showControls) {
+                inc_button.visibility = View.GONE
+                dec_button.visibility = View.GONE
+                amount_input.isEnabled = false
+            } else {
+                dec_button.setOnClickListener {
+                    var amount = amount_input.text.toString().toInt() - 1
+                    if (amount < 0) {
+                        amount = 0
+                    }
+                    card.amount = amount
+                    amount_input.setText(amount.toString(), TextView.BufferType.NORMAL)
                 }
-                card.amount = amount
-                amount_input.setText(amount.toString(), TextView.BufferType.NORMAL)
-            }
 
-            inc_button.setOnClickListener {
-                val amount = amount_input.text.toString().toInt() + 1
-                card.amount = amount
-                amount_input.setText(amount.toString(), TextView.BufferType.NORMAL)
-            }
-
-            amount_input.setOnKeyListener { _, _, _ ->
-                val text = amount_input.text.toString()
-                card.amount = if (text.isEmpty()) {
-                    0
-                } else {
-                    text.toInt()
+                inc_button.setOnClickListener {
+                    val amount = amount_input.text.toString().toInt() + 1
+                    card.amount = amount
+                    amount_input.setText(amount.toString(), TextView.BufferType.NORMAL)
                 }
-                amount_input.setText(card.amount!!.toString(), TextView.BufferType.NORMAL)
-                amount_input.setSelection(amount_input.text.length)
-                return@setOnKeyListener false
+
+                amount_input.setOnKeyListener { _, _, _ ->
+                    val text = amount_input.text.toString()
+                    card.amount = if (text.isEmpty()) {
+                        0
+                    } else {
+                        text.toInt()
+                    }
+                    amount_input.setText(card.amount!!.toString(), TextView.BufferType.NORMAL)
+                    amount_input.setSelection(amount_input.text.length)
+                    return@setOnKeyListener false
+                }
             }
         }
     }

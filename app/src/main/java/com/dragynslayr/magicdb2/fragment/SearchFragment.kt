@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,30 +45,43 @@ class SearchFragment : Fragment() {
 
         with(v) {
             search_button.setOnClickListener {
-                val text = search_layout.getText()
-                if (text.isNotEmpty()) {
-                    hideResult()
-
-                    toastLong("Searching...")
-
-                    val imm =
-                        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(it.windowToken, 0)
-
-                    Thread {
-                        val cardsList = Card.getCards(text)
-                        cards.addAll(cardsList)
-                        card_recycler.adapter!!.notifyDataSetChanged()
-
-                        showResult()
-                    }.start()
+                startSearch()
+            }
+            search_layout.editText!!.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    startSearch()
                 }
+                return@setOnEditorActionListener false
             }
         }
 
         setupResultList()
 
         return v
+    }
+
+    private fun startSearch() {
+        with(v) {
+            val text = search_layout.getText()
+            if (text.isNotEmpty()) {
+                hideResult()
+
+                cards.clear()
+                toastLong("Searching...")
+
+                val imm =
+                    context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(v.windowToken, 0)
+
+                Thread {
+                    val cardsList = Card.getCards(text)
+                    cards.addAll(cardsList)
+                    card_recycler.adapter!!.notifyDataSetChanged()
+
+                    showResult()
+                }.start()
+            }
+        }
     }
 
     private fun setupResultList() {
