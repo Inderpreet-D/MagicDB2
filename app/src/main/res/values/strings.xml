@@ -31,6 +31,11 @@
     <string name="back">Back</string>
     <string name="add">Add</string>
 
+    <string name="search_hint">Card Name</string>
+    <string name="button_search">Search</string>
+    <string name="no_results">No Results.</string>
+    <string name="x_results">%s Results.</string>
+
     <string name="dialog_cancel">Cancel</string>
     <string name="logout_prompt">Are you sure you want to logout?</string>
 
