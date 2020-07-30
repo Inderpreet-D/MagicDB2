@@ -36,6 +36,8 @@
     <string name="no_results">No Results.</string>
     <string name="x_results">%s Results.</string>
 
+    <string name="collection">Your Collection</string>
+
     <string name="dialog_cancel">Cancel</string>
     <string name="logout_prompt">Are you sure you want to logout?</string>
 

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/nav_view"
+        android:text="@string/collection"
         android:textSize="50sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent" />
@@ -24,13 +24,11 @@
         app:layout_constraintTop_toBottomOf="@id/header" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/collection_card_list"
-        android:layout_width="0dp"
+        android:id="@+id/card_recycler"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="5dp"
+        android:layout_margin="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
