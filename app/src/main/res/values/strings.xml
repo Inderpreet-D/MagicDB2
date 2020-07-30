@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Builder\'s Toolkit</string>
+    <string name="title">MTG\nBuilder\'s Toolkit</string>
 
     <string name="mana_description">An image of the 5 mana symbols</string>
     <string name="splash_loading">Loading…</string>
