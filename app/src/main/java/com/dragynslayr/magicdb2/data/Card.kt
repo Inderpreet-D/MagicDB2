@@ -6,10 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.dragynslayr.magicdb2.R
+import com.dragynslayr.magicdb2.helper.DB_COLLECTION
 import com.dragynslayr.magicdb2.helper.removeChars
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.Exclude
-import com.google.firebase.database.IgnoreExtraProperties
+import com.google.firebase.database.*
+import com.google.firebase.database.ktx.getValue
 import kotlinx.android.synthetic.main.item_card.view.*
 import org.json.JSONObject
 import java.io.FileNotFoundException
@@ -25,8 +25,24 @@ data class Card(
 ) : Serializable {
 
     @Exclude
-    fun upload(user: String, db: DatabaseReference) {
+    fun addToCollection(user: User, db: DatabaseReference) {
+        db.child(DB_COLLECTION).child(user.username!!).child(id!!)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {}
 
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val card = snapshot.getValue<Card>()!!
+                        amount = amount?.plus(card.amount!!)
+                    }
+                    update(user, db)
+                }
+            })
+    }
+
+    @Exclude
+    fun update(user: User, db: DatabaseReference) {
+        db.child(DB_COLLECTION).child(user.username!!).child(id!!).setValue(this)
     }
 
     @IgnoreExtraProperties

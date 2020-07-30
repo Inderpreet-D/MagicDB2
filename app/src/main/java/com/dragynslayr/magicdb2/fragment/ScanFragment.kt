@@ -18,6 +18,9 @@ import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.text.TextBlock
 import com.google.android.gms.vision.text.TextRecognizer
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_scan.view.*
 import org.json.JSONObject
 
@@ -28,6 +31,8 @@ class ScanFragment : Fragment() {
     private lateinit var surface: SurfaceView
     private lateinit var cards: ArrayList<Card>
     private lateinit var v: View
+    private lateinit var user: User
+    private lateinit var db: DatabaseReference
 
     private var scanning = false
     private var scanned = ""
@@ -42,6 +47,19 @@ class ScanFragment : Fragment() {
         overlay = v.overlay_view
         surface = v.surface_view
 
+        db = Firebase.database.reference
+        user =
+            activity?.intent?.extras?.getSerializable(getString(R.string.user_object_key)) as User
+
+        setupResultView()
+
+        delayScan()
+        startCameraSource()
+
+        return v
+    }
+
+    private fun setupResultView() {
         cards = arrayListOf()
         with(v) {
             card_recycler.layoutManager = LinearLayoutManager(requireContext())
@@ -65,20 +83,13 @@ class ScanFragment : Fragment() {
                 cards.forEach {
                     if (it.amount!! > 0) {
                         "${it.name} -> ${it.amount}".log()
-                        // TODO: Upload these changes
+                        it.addToCollection(user, db)
                     }
                 }
                 hideResult()
                 delayScan()
             }
         }
-
-        delayScan()
-        startCameraSource()
-
-        "User is ${activity?.intent?.extras?.getSerializable(getString(R.string.user_object_key)) as User}".log()
-
-        return v
     }
 
     private fun hideResult() {
