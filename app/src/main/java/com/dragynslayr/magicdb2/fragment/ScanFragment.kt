@@ -79,7 +79,6 @@ class ScanFragment : Fragment() {
             }
 
             add_button.setOnClickListener {
-                "Pushed add".log()
                 cards.forEach {
                     if (it.amount!! > 0) {
                         "${it.name} -> ${it.amount}".log()
@@ -129,7 +128,7 @@ class ScanFragment : Fragment() {
                 lastScanned = scanned
                 val json = Card.searchText(scanned)
                 "$lastScanned ==> Read: $json".log()
-                if (json.has("data")) {
+                if (json.has("data") && v.scan_result.visibility == View.GONE) {
                     cards.clear()
                     val length = json.getInt("total_cards")
                     "Found $length card${if (length != 1) "s" else ""}".log()

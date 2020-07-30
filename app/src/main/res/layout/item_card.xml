@@ -42,15 +42,17 @@
 
         <EditText
             android:id="@+id/amount_input"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="3dp"
             android:background="@color/light_gray"
             android:hint="@string/amount_hint"
             android:importantForAutofill="no"
             android:inputType="numberSigned"
+            android:minWidth="100dp"
             android:text="@string/zero"
             android:textAlignment="center"
+            android:maxLength="9"
             android:textColor="@android:color/white"
             android:textSize="50sp"
             app:layout_constraintBottom_toBottomOf="parent"

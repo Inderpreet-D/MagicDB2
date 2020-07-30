@@ -110,6 +110,18 @@ private class CardHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                 card.amount = amount
                 amount_input.setText(amount.toString(), TextView.BufferType.NORMAL)
             }
+
+            amount_input.setOnKeyListener { _, _, _ ->
+                val text = amount_input.text.toString()
+                card.amount = if (text.isEmpty()) {
+                    0
+                } else {
+                    text.toInt()
+                }
+                amount_input.setText(card.amount!!.toString(), TextView.BufferType.NORMAL)
+                amount_input.setSelection(amount_input.text.length)
+                return@setOnKeyListener false
+            }
         }
     }
 }
