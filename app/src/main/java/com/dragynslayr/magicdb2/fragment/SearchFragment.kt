@@ -101,7 +101,7 @@ class SearchFragment : Fragment() {
                 val toAdd = arrayListOf<Card>()
                 cards.forEach {
                     if (it.amount!! > 0) {
-                        toAdd.add(Card(it.id!!, it.name!!, it.amount!!))
+                        toAdd.add(it.copy())
                     }
                 }
                 if (toAdd.isNotEmpty()) {
