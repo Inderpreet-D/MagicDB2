@@ -23,12 +23,37 @@
         android:background="@android:color/darker_gray"
         app:layout_constraintTop_toBottomOf="@id/header" />
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/search_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_hint"
+        app:layout_constraintTop_toBottomOf="@id/separator_1">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
+            android:layout_marginTop="5dp"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <View
+        android:id="@+id/separator_2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintTop_toBottomOf="@id/search_layout" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/card_recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/separator_1" />
+        app:layout_constraintTop_toBottomOf="@id/separator_2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
