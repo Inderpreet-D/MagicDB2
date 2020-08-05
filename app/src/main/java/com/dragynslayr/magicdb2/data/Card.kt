@@ -40,6 +40,11 @@ data class Card(
             })
     }
 
+    @Exclude
+    fun removeFromCollection(user: User, db: DatabaseReference) {
+        db.child(DB_COLLECTION).child(user.username!!).child(id!!).removeValue()
+    }
+
     @IgnoreExtraProperties
     companion object {
         @Exclude
@@ -91,6 +96,9 @@ class CardListAdapter(
     private val cards: List<Card>,
     private val showControls: Boolean? = true
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    lateinit var longClick: (Card) -> Unit
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val li = LayoutInflater.from(parent.context)
         val v = li.inflate(R.layout.item_card, parent, false)
@@ -103,7 +111,14 @@ class CardListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val card = cards[position]
-        (holder as CardHolder).bind(card, showControls!!)
+        val ch = holder as CardHolder
+        ch.itemView.setOnLongClickListener {
+            if (this::longClick.isInitialized) {
+                longClick(card)
+            }
+            return@setOnLongClickListener false
+        }
+        ch.bind(card, showControls!!)
     }
 }
 

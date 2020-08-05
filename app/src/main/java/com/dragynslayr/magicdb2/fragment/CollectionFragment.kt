@@ -1,9 +1,14 @@
 package com.dragynslayr.magicdb2.fragment
 
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +18,7 @@ import com.dragynslayr.magicdb2.data.CardListAdapter
 import com.dragynslayr.magicdb2.data.User
 import com.dragynslayr.magicdb2.helper.DB_COLLECTION
 import com.dragynslayr.magicdb2.helper.getText
+import com.dragynslayr.magicdb2.helper.spaceButtons
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -44,9 +50,13 @@ class CollectionFragment : Fragment() {
             activity?.intent?.extras?.getSerializable(getString(R.string.user_object_key)) as User
 
         with(v) {
-            search_layout.editText!!.setOnKeyListener { _, _, _ ->
-                startSearch()
-                return@setOnKeyListener false
+            search_layout.editText!!.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                    val imm =
+                        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.windowToken, 0)
+                }
+                return@setOnEditorActionListener false
             }
             search_layout.editText!!.addTextChangedListener {
                 startSearch()
@@ -81,7 +91,11 @@ class CollectionFragment : Fragment() {
         allCards = arrayListOf()
         with(v) {
             card_recycler.layoutManager = LinearLayoutManager(requireContext())
-            card_recycler.adapter = CardListAdapter(cards, false)
+            val adapter = CardListAdapter(cards, false)
+            adapter.longClick = {
+                showRemoveDialog(it)
+            }
+            card_recycler.adapter = adapter
             card_recycler.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
                 if (bottom < oldBottom) {
                     card_recycler.postDelayed({
@@ -94,10 +108,12 @@ class CollectionFragment : Fragment() {
 
     private fun loadCards() {
         db.child(DB_COLLECTION).child(user.username!!)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+            .addValueEventListener(object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError) {}
 
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    cards.clear()
+                    allCards.clear()
                     snapshot.children.forEach {
                         val card = it.getValue<Card>()!!
                         cards.add(card)
@@ -107,7 +123,23 @@ class CollectionFragment : Fragment() {
                     }
                     allCards.addAll(cards)
                     v.card_recycler.adapter!!.notifyDataSetChanged()
+                    startSearch()
                 }
             })
+    }
+
+    private fun showRemoveDialog(card: Card) {
+        val dialog =
+            AlertDialog.Builder(requireContext())
+                .setMessage(getString(R.string.remove_collection_card, card.name!!))
+                .setNegativeButton(getString(android.R.string.no)) { _: DialogInterface, _: Int -> }
+                .setPositiveButton(getString(android.R.string.yes)) { _: DialogInterface, _: Int ->
+                    card.removeFromCollection(user, db)
+                }
+                .create()
+        dialog.setOnShowListener {
+            dialog.spaceButtons()
+        }
+        dialog.show()
     }
 }

@@ -38,6 +38,8 @@
 
     <string name="collection">Your Collection</string>
 
+    <string name="remove_collection_card">Remove %s from your collection?</string>
+
     <string name="dialog_cancel">Cancel</string>
     <string name="logout_prompt">Are you sure you want to logout?</string>
 
