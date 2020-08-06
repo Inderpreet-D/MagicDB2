@@ -16,7 +16,15 @@ import com.dragynslayr.magicdb2.activity.LoginActivity
 import com.dragynslayr.magicdb2.activity.MainActivity
 import com.dragynslayr.magicdb2.data.User
 import com.google.android.material.textfield.TextInputLayout
+import org.json.JSONObject
+import java.io.FileNotFoundException
+import java.net.URL
+import java.net.URLEncoder
 import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.*
+
+private val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.CANADA)
 
 fun EditText.setNameFilter() {
     val filter =
@@ -120,4 +128,24 @@ fun String.removeChars(): String {
         s = s.replace(c.toString(), "")
     }
     return s
+}
+
+fun Date.format(): String {
+    return dateFormat.format(this)
+}
+
+fun String.parseDate(): Date {
+    return dateFormat.parse(this)!!
+}
+
+fun String.fetch(): JSONObject {
+    return try {
+        JSONObject(URL(this).readText())
+    } catch (_: FileNotFoundException) {
+        JSONObject()
+    }
+}
+
+fun String.escape(): String {
+    return URLEncoder.encode(this, "utf-8")
 }

@@ -63,7 +63,7 @@ data class Card(
             val url = "https://api.scryfall.com/cards/search?q=${escaped}"
             return try {
                 JSONObject(URL(url).readText())
-            } catch (fnf: FileNotFoundException) {
+            } catch (_: FileNotFoundException) {
                 JSONObject()
             }
         }

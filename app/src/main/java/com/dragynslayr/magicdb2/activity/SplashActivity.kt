@@ -16,6 +16,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import java.util.*
 
 class SplashActivity : AppCompatActivity() {
 
@@ -39,14 +40,55 @@ class SplashActivity : AppCompatActivity() {
     private fun checkForData() {
         val sharedPreferences =
             getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        val bulkToken = sharedPreferences.getString(getString(R.string.bulk_date_key), null)
-        if (bulkToken == null) {
-            // Download both
-            val now = getToday()
-            "Current: $now\nConvert: ${parseDate(now)}".log()
+        val lastDateString = sharedPreferences.getString(getString(R.string.bulk_date_key), null)
+
+        val c = Calendar.getInstance()
+        val now = c.time
+        val nextDate = if (lastDateString == null) {
+            now.format().parseDate()
         } else {
-            // Download info of bulk and compare date
+            c.time = lastDateString.parseDate()
+            c.add(Calendar.DAY_OF_MONTH, 7)
+            c.time.format().parseDate()
         }
+
+        if (now >= nextDate) {
+            "Should download".log()
+            // Download both
+            downloadBulkData {
+//                with(sharedPreferences.edit()) {
+//                    putString(getString(R.string.bulk_date_key), now.format())
+//                    commit()
+//                }
+                "Finished".log()
+            }
+
+        } else {
+            "Try to login".log()
+//            checkForToken()
+        }
+    }
+
+    private fun downloadBulkData(callback: () -> Unit) {
+        Thread {
+            val url = "https://api.scryfall.com/bulk-data"
+            val bulkList = url.fetch()
+            if (bulkList.has("data")) {
+                bulkList.getJSONArray("data").toString().log()
+                val dataArray = bulkList.getJSONArray("data")
+                for (i in 0 until dataArray.length()) {
+                    val obj = dataArray.getJSONObject(i)
+                    if (obj.getString("type") == "oracle_cards") {
+                        obj.toString().log()
+                        val downloadUri = obj.getString("download_uri")
+                        downloadUri.log()
+//                                callback()
+                        break
+                    }
+                }
+                "Done".log()
+            }
+        }.start()
     }
 
     private fun checkForToken() {
