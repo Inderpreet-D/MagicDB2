@@ -1,14 +1,14 @@
 package com.dragynslayr.magicdb2.activity
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.dragynslayr.magicdb2.R
 import com.dragynslayr.magicdb2.data.User
-import com.dragynslayr.magicdb2.helper.DB_USERS
-import com.dragynslayr.magicdb2.helper.enableNightMode
-import com.dragynslayr.magicdb2.helper.startLogin
-import com.dragynslayr.magicdb2.helper.startMain
+import com.dragynslayr.magicdb2.helper.*
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -28,8 +28,24 @@ class SplashActivity : AppCompatActivity() {
 
         database = Firebase.database.reference
 
+        createNotificationChannel()
+
         if (savedInstanceState == null) {
-            checkForToken()
+            //checkForToken()
+            checkForData()
+        }
+    }
+
+    private fun checkForData() {
+        val sharedPreferences =
+            getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val bulkToken = sharedPreferences.getString(getString(R.string.bulk_date_key), null)
+        if (bulkToken == null) {
+            // Download both
+            val now = getToday()
+            "Current: $now\nConvert: ${parseDate(now)}".log()
+        } else {
+            // Download info of bulk and compare date
         }
     }
 
@@ -63,5 +79,16 @@ class SplashActivity : AppCompatActivity() {
                     startLogin()
                 }
             })
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_name)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance)
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }

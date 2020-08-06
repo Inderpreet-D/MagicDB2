@@ -2,6 +2,8 @@
     <string name="app_name">Builder\'s Toolkit</string>
     <string name="title">MTG\nBuilder\'s Toolkit</string>
 
+    <string name="channel_name">Database Updates</string>
+
     <string name="mana_description">An image of the 5 mana symbols</string>
     <string name="splash_loading">Loading…</string>
 
@@ -47,4 +49,5 @@
     <string name="user_name_key">USER NAME KEY</string>
     <string name="preference_file_key">com.dragynslayr.magicdb2.PREFERENCE_FILE_KEY</string>
     <string name="user_token_key">USER TOKEN KEY</string>
+    <string name="bulk_date_key">BULK DATE KEY</string>
 </resources>
